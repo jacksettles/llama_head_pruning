@@ -18,3 +18,7 @@ attention computation in parallel. Prior to pruning, these tensors are repreated
 every group has the same number of heads in it, so k and v need to be repeated by a factor of however many
 heads there are per group. After pruning though, each group in each layer has a varying number of heads left
 in it, so the model has to iterate over a list of repeat factors for each group in each layer.
+
+## Credit where credit is due!
+
+This repo utilizes the framework in https://github.com/rachtibat/LRP-eXplains-Transformers to perform relevance propagation on transformer based LLMs.
