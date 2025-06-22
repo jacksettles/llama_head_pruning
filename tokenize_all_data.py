@@ -5,11 +5,11 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 import random
 
-tokenizer_path = "/scratch/jts75596/llama/models/1B_model/tokenizer"
+tokenizer_path = "/llama/models/1B_model/tokenizer"
 
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 
-file_path = "/home/jts75596/comp_ling/babylm_data/train_100M/processed/*.txt"
+file_path = "/data/processed/*.txt"
 file_list = glob.glob(file_path)
 print(file_list)
 
