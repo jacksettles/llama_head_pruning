@@ -45,8 +45,8 @@ def load_model_and_tokenizer(model=None, load_local=False):
         tokenizer_path = model_path
         
     if load_local:
-        model_path = f"../../../../scratch/jts75596/llama/models/{model}_model/model"
-        tokenizer_path = f"../../../../scratch/jts75596/llama/models/{model}_model/tokenizer"
+        model_path = f"/llama/models/{model}_model/model"
+        tokenizer_path = f"/llama/models/{model}_model/tokenizer"
         
     model = modeling_llama.LlamaForCausalLM.from_pretrained(model_path,
                                                             device_map='cuda', 
@@ -251,8 +251,8 @@ def main(args):
     model, tokenizer = load_model_and_tokenizer(model=args.model, load_local=True)
     
     if args.save_model == 1:
-        model.save_pretrained(f"../../../../scratch/jts75596/llama/models/{args.model}_model/model")
-        tokenizer.save_pretrained(f"../../../../scratch/jts75596/llama/models/{args.model}_model/tokenizer")
+        model.save_pretrained(f"/llama/models/{args.model}_model/model")
+        tokenizer.save_pretrained(f"/llama/models/{args.model}_model/tokenizer")
     
     print(model.config._attn_implementation)         # Should print "eager"
     print(model.config._attn_implementation_autoset)   # Should print False
