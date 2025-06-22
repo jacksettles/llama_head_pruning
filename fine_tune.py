@@ -81,9 +81,9 @@ class Trainer:
             self.teacher_model = DDP(teacher_model, device_ids=[self.gpu_id])
             self.criterion_kl = nn.KLDivLoss(reduction='batchmean') # If batch size = 1, reduction='batchmean' is same as 'sum'
             
-        if os.path.exists(f"/scratch/jts75596/llama/models/1B_model/finetuned_models/{snapshot_path}"):
+        if os.path.exists(f"/llama/models/1B_model/finetuned_models/{snapshot_path}"):
             print(f"Rank {self.gpu_id} loading snapshot")
-            self._load_snapshot(f"/scratch/jts75596/llama/models/1B_model/finetuned_models/{snapshot_path}")
+            self._load_snapshot(f"/llama/models/1B_model/finetuned_models/{snapshot_path}")
 
         self.model = DDP(self.model, device_ids=[self.gpu_id])
         self.criterion = nn.NLLLoss(reduction='sum')
@@ -220,7 +220,7 @@ class Trainer:
             "MODEL": self.model.module,
             "EPOCHS_RUN": epoch,
         }
-        save_path = f"/scratch/jts75596/llama/models/{args.model_type}_model/finetuned_models/"
+        save_path = f"/llama/models/{args.model_type}_model/finetuned_models/"
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         save_file = save_path + self.snapshot_path
@@ -230,7 +230,7 @@ class Trainer:
         
     def _log_progress(self, log_string=None, file_name=None):
         # Ensure the directory exists
-        directory = "../../../home/jts75596/mlsys/LRP-eXplains-Transformers/progress_outputs/"
+        directory = "./progress_outputs/"
         if not os.path.exists(directory):
             os.makedirs(directory)
         file_path = os.path.join(directory, f"{file_name}_progress_log.txt")
