@@ -22,3 +22,7 @@ in it, so the model has to iterate over a list of repeat factors for each group 
 ## Credit where credit is due!
 
 This repo utilizes the framework in https://github.com/rachtibat/LRP-eXplains-Transformers to perform relevance propagation on transformer based LLMs.
+
+# Disclaimer
+
+This code was implemented with a lot of absolute paths, so if anyone wishes to use it, just be sure to put in your own path names to your models and data. Bad practice, I know.
