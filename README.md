@@ -26,3 +26,4 @@ This repo utilizes the framework in https://github.com/rachtibat/LRP-eXplains-Tr
 # Disclaimer
 
 This code was implemented with a lot of absolute paths, so if anyone wishes to use it, just be sure to put in your own path names to your models and data. Bad practice, I know.
+I was moving data and code back and forth between my /scratch and /home directories a lot for this project, so it was easier than remembering the relative path from where I was at a given moment.
