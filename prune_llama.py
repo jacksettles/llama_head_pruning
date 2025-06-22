@@ -240,8 +240,8 @@ def patched_forward(module, query, key, value, attention_mask, scaling, dropout=
 
         
 def main(args):
-    model_path = f"/scratch/jts75596/llama/models/{args.model}_model/model"
-    tokenizer_path = f"/scratch/jts75596/llama/models/{args.model}_model/tokenizer"
+    model_path = f"/llama/models/{args.model}_model/model"
+    tokenizer_path = f"/llama/models/{args.model}_model/tokenizer"
     model = modeling_llama.LlamaForCausalLM.from_pretrained(model_path, 
                                                         device_map='cuda', 
                                                         torch_dtype=torch.bfloat16)
@@ -336,7 +336,7 @@ def main(args):
             pickle.dump(layer_prune_dict, f)
         print(f"Pruning dictionary saved to {dict_filename}")
 
-        model_save_path = f"/scratch/jts75596/llama/models/{args.model}_model/pruned_models"
+        model_save_path = f"/llama/models/{args.model}_model/pruned_models"
         if not os.path.exists(model_save_path):
             os.makedirs(model_save_path)
             
