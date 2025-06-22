@@ -1,140 +1,20 @@
-<div align="center">
-  <img src="docs/source/_static/lxt_logo.png" width="300"/>
+# This repo goes through the basics of how to:
 
-  <h3>Layer-wise Relevance Propagation for Transformers</h3>
-  <p><i></i></p>
+## 1. Perform relevance propagation
+Here we use the repo associated with AttnLRP to attribute relevance to latent parts of Llama LLM models, namely the attention heads.
 
-  [![PyTorch](https://img.shields.io/badge/PyTorch-%23EE4C2C.svg?style=for-the-badge&logo=PyTorch&logoColor=white)](https://pytorch.org)
-  [![Read the Docs](https://img.shields.io/badge/-Docs-blue?style=for-the-badge&logo=Read-the-Docs&logoColor=white)](https://lxt.readthedocs.io)
-  [![License](https://img.shields.io/badge/License-BSD_3--Clause-green.svg?style=for-the-badge)](https://opensource.org/licenses/BSD-3-Clause)
-</div>
+## 2. Prune those attention heads structurally
+No prune_heads() function was ever actually implemented for these Llama models. I now know why
 
-## Accelerating eXplainable AI research for LLMs & ViTs
+What we found after pruning the attention heads that were deemed "irrelevant" was that:
 
-#### 🔥 Highly efficient & Faithful Attributions
-
-Attention-aware LRP (AttnLRP) **outperforms** gradient-, decomposition- and perturbation-based methods, provides faithful attributions for the **entirety** of a black-box transformer model while scaling in computational complexitiy $O(1)$ and memory requirements $O(\sqrt{N})$ with respect to the number of layers.
-
-#### 🔎 Latent Feature Attribution & Visualization
-Since we get relevance values for each single neuron in the model as a by-product, we know exactly how important each neuron is for the prediction of the model. Combined with Activation Maximization, we can label neurons or SAE features in LLMs and even steer the generation process of the LLM by activating specialized knowledge neurons in latent space!
-
-#### 📚 Paper
-For the mathematical details and foundational work, please take a look at our paper:  
-[Achtibat, et al. “AttnLRP: Attention-Aware Layer-Wise Relevance Propagation for Transformers.” ICML 2024.](https://proceedings.mlr.press/v235/achtibat24a.html)  
-
-#### 🏆 Hall of Fame
-A collection of papers that have utilized LXT:
-
-- [Arras, et al. “Close Look at Decomposition-based XAI-Methods for Transformer Language Models.” arXiv preprint, 2025.](https://arxiv.org/abs/2502.15886)
-- [Pan, et al. “The Hidden Dimensions of LLM Alignment: A Multi-Dimensional Safety Analysis.” arXiv preprint, 2025.](https://arxiv.org/abs/2502.09674)
-- [Hu, et al. “LRP4RAG: Detecting Hallucinations in Retrieval-Augmented Generation via Layer-wise Relevance Propagation“ arXiv preprint, 2024.](https://arxiv.org/abs/2408.15533)
-- [Sarti, et al. “Quantifying the Plausibility of Context Reliance in Neural Machine Translation.” ICLR 2024.](https://arxiv.org/abs/2310.01188)
-[![Demo](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/gsarti/mirage)
-
-
-#### 📄 License
-This project is licensed under the BSD-3 Clause License, which means that LRP is a patented technology that can only be used free of charge for personal and scientific purposes.
-
-## Getting Started 
-### 🛠️ Installation 
-
-```bash
-pip install lxt
-```
-
-Tested with: `transformers==4.48.3`, `torch==2.6.0`, `python==3.11`
-
-### 🚀 Quickstart with 🤗 LLaMA, BERT, GPT2, Qwen, Mixtral & many more
-You find example scripts in the `examples/*` directory. For an in-depth tutorial, take a look at the [Quickstart in the Documentation](https://lxt.readthedocs.io/en/latest/quickstart.html).
-To get an overview, you can keep reading below ⬇️
-
-
-## How LXT Works
-
-Layer-wise Relevance Propagation is a rule-based backpropagation algorithm. This means, that we can implement LRP in a single backward pass!
-For this, LXT offers two different approaches:
-
-### 1. Efficient Implementation
-Uses a Gradient*Input formulation, which simplifies LRP to a standard & fast gradient computation via monkey patching the model class.
-
-
-```python
-from lxt.efficient import monkey_patch
-
-# Patch module first
-monkey_patch(your_module)
-
-# Forward pass with gradient tracking
-outputs = model(inputs_embeds=input_embeds.requires_grad_())
-
-# Backward pass
-outputs.logits[...].backward()
-
-# Get relevance at *ANY LAYER* in your model. Simply multiply the gradient * activation!
-# here for the input embeddings:
-relevance = (input_embeds.grad * input_embeds).sum(-1)
-```
-This is the **recommended approach** for most users as it's significantly faster and easier to use. This implementation technique is introduced in [Arras, et al. “Close Look at Decomposition-based XAI-Methods for Transformer Language Models.” arXiv preprint, 2025.](https://arxiv.org/abs/2502.15886)
- 
-### 2. Mathematical Explicit Implementation
-This was used in the original [ICML 2024 paper](https://proceedings.mlr.press/v235/achtibat24a.html). It's more complex and slower, but useful for understanding the mathematical foundations of LRP.
-
-
-To achieve this, we have implemented [custom PyTorch autograd Functions](https://pytorch.org/tutorials/beginner/examples_autograd/two_layer_net_custom_function.html) for commonly used operations in transformers. These functions behave identically in the forward pass, but substitute the gradient with LRP attributions in the backward pass. To compute the $\varepsilon$-LRP rule for a linear function $y = W x + b$, you can simply write
-```python
-import lxt.explicit.functional as lf
-
-y = lf.linear_epsilon(x.requires_grad_(), W, b)
-y.backward(y)
-
-relevance = x.grad
-```
-
-There are also "super-functions" that wrap an arbitrary nn.Module and compute LRP rules via automatic vector-Jacobian products! These rules are simple to attach to models:
-
-```python
-from lxt.explicit.core import Composite
-import lxt.explicit.rules as rules
-
-model = nn.Sequential(
-  nn.Linear(10, 10),
-  RootMeanSquareNorm(),
-)
-
-Composite({
-  nn.Linear: rules.EpsilonRule,
-  RootMeanSquareNorm: rules.IdentityRule,
-}).register(model)
-
-print(model)
-```
-<div align="left">
-  <img src="docs/source/_static/terminal.png" width="400"/>
-</div>
-
-
-## Documentaion
-[Click here](https://lxt.readthedocs.io) to read the documentation.
-
-## Contribution
-Feel free to explore the code and experiment with different datasets and models. We encourage contributions and feedback from the community. We are especially grateful for providing support for new model architectures! 🙏
-
-
-## Citation
-```
-@InProceedings{pmlr-v235-achtibat24a,
-  title = {{A}ttn{LRP}: Attention-Aware Layer-Wise Relevance Propagation for Transformers},
-  author = {Achtibat, Reduan and Hatefi, Sayed Mohammad Vakilzadeh and Dreyer, Maximilian and Jain, Aakriti and Wiegand, Thomas and Lapuschkin, Sebastian and Samek, Wojciech},
-  booktitle = {Proceedings of the 41st International Conference on Machine Learning},
-  pages = {135--168},
-  year = {2024},
-  editor = {Salakhutdinov, Ruslan and Kolter, Zico and Heller, Katherine and Weller, Adrian and Oliver, Nuria and Scarlett, Jonathan and Berkenkamp, Felix},
-  volume = {235},
-  series = {Proceedings of Machine Learning Research},
-  month = {21--27 Jul},
-  publisher = {PMLR}
-}
-```
-
-## Acknowledgements
-The code is heavily inspired by [Zennit](https://github.com/chr5tphr/zennit), a tool for LRP attributions in PyTorch using hooks. Zennit is 100% compatible with the **explicit** version of LXT and offers even more LRP rules 🎉
+1. Performance on BLiMP (for testing a model's linguistic knowledge) goes down by about 10-20%
+2. Model size is only reduced by 1-3%. Attention heads are typically a small part of the total 
+parameters of transformer based LLMs. This is especially the case with Llama 2+ models, which 
+all use Grouped Query Attention (GQA).
+3. Latency actually increases, meaning the model gets slightly slower and has a lower throughput.
+This is probably because the k and v tensors have to be repeated when using GQA in order to do
+attention computation in parallel. Prior to pruning, these tensors are repreated at a constant amount:
+every group has the same number of heads in it, so k and v need to be repeated by a factor of however many
+heads there are per group. After pruning though, each group in each layer has a varying number of heads left
+in it, so the model has to iterate over a list of repeat factors for each group in each layer.
