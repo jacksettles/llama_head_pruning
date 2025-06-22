@@ -333,7 +333,7 @@ def main(args):
         "Pruned Model-GPU": list(pruned_model_cuda.values())
     }
     df = pd.DataFrame(data)
-    df.to_csv("/home/jts75596/mlsys/LRP-eXplains-Transformers/1B_optim_eager_attn_latency_tests.csv")
+    df.to_csv("./1B_optim_eager_attn_latency_tests.csv")
     
 if __name__ == "__main__":
     args = parser.parse_args()
