@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, help="Path to model to run the BLiMP eval on.")
 parser.add_argument("--tokenizer", type=str, help="Path to tokenizer for that model.")
 parser.add_argument("--seed", type=int, default=3455, help="Seed for setting randomness for reproducibility.")
-parser.add_argument("--blimp_path", type=str, default="../../../home/jts75596/comp_ling/urnng/blimp_data/*.jsonl", help="Path to BLiMP data.")
+parser.add_argument("--blimp_path", type=str, default="./blimp_data/*.jsonl", help="Path to BLiMP data.")
 parser.add_argument("--save_filename", type=str, help="What to name the saved .csv file of scores")
 parser.add_argument("--pruned_model", type=int, default=0, help="1 if the model to evaluate is a pruned model, 0 if original")
 
@@ -114,7 +114,7 @@ def main(args):
     
     save_dir = "blimp_results"
         
-    res_df.to_csv(f"/home/jts75596/mlsys/LRP-eXplains-Transformers/{save_dir}/{args.save_filename}.csv", index=True)
+    res_df.to_csv(f"./{save_dir}/{args.save_filename}.csv", index=True)
     
     
 if __name__ == "__main__":
